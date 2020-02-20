@@ -2,13 +2,20 @@ package com.websarva.wings.android.thekimete
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.ListView
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.startActivity
+
+
 
 class TitleList : AppCompatActivity() {
 
@@ -56,8 +63,11 @@ class TitleList : AppCompatActivity() {
 
             var viewHolder : ViewHolder? = null
             var view = convertView
+            var mHandler = Handler(Looper.getMainLooper())
+
 
             // 再利用の設定
+
             if (view == null) {
 
                 view = inflater!!.inflate(R.layout.list_item, parent, false)
@@ -75,14 +85,21 @@ class TitleList : AppCompatActivity() {
             // 項目の情報を設定
             val listItem = getItem(position)
             viewHolder.titleView.text = listItem!!.title
-            viewHolder.goedit.setOnClickListener {
 
+            viewHolder.goedit.setOnClickListener {
+                mHandler.post(Runnable {
+                val intent = Intent(this, ContentsList::class.java)
+                startActivity(intent)
+                })
             }
+
             viewHolder.deleteIcon.setOnClickListener { _ ->
                 // 削除ボタンをタップしたときの処理
                 this.remove(listItem)
                 this.notifyDataSetChanged()
             }
+
+
 
 
             return view!!
