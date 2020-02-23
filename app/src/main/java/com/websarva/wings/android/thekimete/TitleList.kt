@@ -2,19 +2,19 @@ package com.websarva.wings.android.thekimete
 
 import android.content.Context
 import android.content.Intent
+import android.icu.text.CaseMap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
-
+import com.nifcloud.mbaas.core.NCMB
+import com.nifcloud.mbaas.core.NCMBObject
+import com.nifcloud.mbaas.core.NCMBObjectService
+import com.nifcloud.mbaas.core.NCMBQuery
 
 
 class TitleList : AppCompatActivity() {
@@ -23,23 +23,45 @@ class TitleList : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_title_list)
 
+        //DB
+//TestClassを検索するためのNCMBQueryインスタンスを作成
+        //TestClassを検索するためのNCMBQueryインスタンスを作成
+        val query = NCMBQuery<NCMBObject>("Title")
+
+        var i = 0
+        var titleList = query.find()
+        var n = titleList.size
+        val list: List<Map<String, String>> = ArrayList()
+
         // 初期のリスト項目を設定
         val arrayAdapter = MyArrayAdapter(this, 0).apply {
-            add(ListItem("タイトル"))
-            add(ListItem("・・・"))
-            add(ListItem("・・・"))
-            add(ListItem("・・・"))
-            add(ListItem("・・・"))
+            while (i < n) {
+                var o = titleList[i].getString("Title")
+                add(ListItem(o))
+                i++
+            }
         }
 
         // ListView にリスト項目と ArrayAdapter を設定
-        val listView : ListView = findViewById(R.id.listView)
+        val listView: ListView = findViewById(R.id.listView)
         listView.adapter = arrayAdapter
+        listView.onItemClickListener =  AdapterView.OnItemClickListener { parent, view, pos, id ->
+            val intent = Intent(view!!.context, ContentsList::class.java)
+            var listitem : ListItem = parent.getItemAtPosition(pos) as ListItem
+            var query = NCMBQuery<NCMBObject>("Title")
+            query.whereEqualTo("Title",listitem.title)
+            var tID = query.find()
+            intent.putExtra("KEY_TITLE", listitem.title)
+            intent.putExtra("KEY_ID",tID[0].getString("objectId"))
+            view.context.startActivity(intent)
+        }
+
+    }
 
     }
 
     // リスト項目のデータ
-    class ListItem(val title : String) {
+    class ListItem(val title: String) {
 
         var description : String = "No description"
 
@@ -49,7 +71,7 @@ class TitleList : AppCompatActivity() {
     }
 
     // リスト項目を再利用するためのホルダー
-    data class ViewHolder(val titleView: TextView, val goedit: Button, val deleteIcon: Button)
+    data class ViewHolder(val titleView: TextView,val deleteIcon: Button)
 
     // 自作のリスト項目データを扱えるようにした ArrayAdapter
     class MyArrayAdapter : ArrayAdapter<ListItem> {
@@ -71,10 +93,8 @@ class TitleList : AppCompatActivity() {
             if (view == null) {
 
                 view = inflater!!.inflate(R.layout.list_item, parent, false)
-
                 viewHolder = ViewHolder(
                     view.findViewById(R.id.item_title),
-                    view.findViewById(R.id.goed),
                     view.findViewById(R.id.delete_button)
                 )
                 view.tag = viewHolder
@@ -84,25 +104,14 @@ class TitleList : AppCompatActivity() {
 
             // 項目の情報を設定
             val listItem = getItem(position)
-            viewHolder.titleView.text = listItem!!.title
-
-            viewHolder.goedit.setOnClickListener {
-                mHandler.post(Runnable {
-                val intent = Intent(this, ContentsList::class.java)
-                startActivity(intent)
-                })
-            }
-
+            viewHolder.titleView.text = listItem!!.title.toString()
             viewHolder.deleteIcon.setOnClickListener { _ ->
                 // 削除ボタンをタップしたときの処理
                 this.remove(listItem)
                 this.notifyDataSetChanged()
             }
 
-
-
-
             return view!!
         }
     }
-}
+
