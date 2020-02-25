@@ -16,6 +16,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.nifcloud.mbaas.core.NCMBObject
 import com.nifcloud.mbaas.core.NCMBQuery
+import kotlinx.android.synthetic.main.activity_title_list.*
 import java.util.Collections.addAll
 
 
@@ -31,15 +32,14 @@ class ContentsList : AppCompatActivity() {
         query.whereEqualTo("TitleID",tID)
         var conLis = query.find()
         var n = conLis.size
-        val list: List<Map<String, String>> = ArrayList()
 
         // 初期のリスト項目を設定
         val arrayAdapter = MyArrayAdapter(this, 0).apply {
             while (i < n) {
-                var o = conLis[i].getString("content")
-                add(ListItem(o))
-                i++
-            }
+            var o = conLis[i].getString("content")
+            add(ListItem(o))
+            i++
+        }
 
         }
 
@@ -55,22 +55,28 @@ class ContentsList : AppCompatActivity() {
         // ListView にリスト項目と ArrayAdapter を設定
         val listView: ListView = findViewById(R.id.clistView)
         listView.adapter = arrayAdapter
+
         listView.onItemClickListener = AdapterView.OnItemClickListener { parent, view, pos, id ->
-              var listitem : ListItem = parent.getItemAtPosition(pos) as ListItem
+            var listitem : ListItem = parent.getItemAtPosition(pos) as ListItem
             var query = NCMBQuery<NCMBObject>("massage")
             query.whereEqualTo("content",listitem.koumoku)
             var cID = query.find()
-            EditTextFragment.newInstance(cID[0].getString("objectId"), listitem.koumoku).show(this.supportFragmentManager, EditTextFragment.TAG)
-//              var edit = EditText(this)
-//              edit.setText("編集",TextView.BufferType.EDITABLE)
-//
-//              val llayout = LinearLayout(this)
-//              llayout.addView(edit, LinearLayout.LayoutParams(200, 50))
-//              setContentView(llayout)
-
-
+            //EditTextFragment.newInstance(cID[0].getString("objectId"), listitem.koumoku).show(this.supportFragmentManager, EditTextFragment.TAG)
+            val bundle = Bundle()
+            bundle.putString("KEY_ID",cID[0].getString("objectId"))
+            bundle.putString("KEY_KOUMOKU",listitem.koumoku)
+            val EdTF = EditTextFragment()
+            EdTF.arguments = bundle
+            EdTF.show(supportFragmentManager,"ResultFragment")
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        print("aaa")
+
+    }
+
 
 
 

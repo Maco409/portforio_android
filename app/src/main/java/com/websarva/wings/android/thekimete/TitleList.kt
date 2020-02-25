@@ -15,6 +15,7 @@ import com.nifcloud.mbaas.core.NCMB
 import com.nifcloud.mbaas.core.NCMBObject
 import com.nifcloud.mbaas.core.NCMBObjectService
 import com.nifcloud.mbaas.core.NCMBQuery
+import kotlinx.android.synthetic.main.activity_title_list.*
 
 
 class TitleList : AppCompatActivity() {
@@ -23,9 +24,11 @@ class TitleList : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_title_list)
 
-        //DB
-//TestClassを検索するためのNCMBQueryインスタンスを作成
-        //TestClassを検索するためのNCMBQueryインスタンスを作成
+        createList()
+
+    }
+
+    fun createList(){
         val query = NCMBQuery<NCMBObject>("Title")
 
         var i = 0
@@ -44,7 +47,9 @@ class TitleList : AppCompatActivity() {
 
         // ListView にリスト項目と ArrayAdapter を設定
         val listView: ListView = findViewById(R.id.listView)
+
         listView.adapter = arrayAdapter
+
         listView.onItemClickListener =  AdapterView.OnItemClickListener { parent, view, pos, id ->
             val intent = Intent(view!!.context, ContentsList::class.java)
             var listitem : ListItem = parent.getItemAtPosition(pos) as ListItem
@@ -58,7 +63,7 @@ class TitleList : AppCompatActivity() {
 
     }
 
-    }
+}
 
     // リスト項目のデータ
     class ListItem(val title: String) {
@@ -110,8 +115,9 @@ class TitleList : AppCompatActivity() {
                 this.remove(listItem)
                 this.notifyDataSetChanged()
             }
-
             return view!!
         }
+
     }
+
 

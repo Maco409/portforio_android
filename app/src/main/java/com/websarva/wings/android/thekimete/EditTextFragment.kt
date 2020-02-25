@@ -3,6 +3,7 @@ package com.websarva.wings.android.thekimete
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -21,32 +22,35 @@ import kotlinx.android.synthetic.main.activity_title_list.*
  */
 class EditTextFragment : DialogFragment() {
 
+    var cotext : Context? = null
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        this.cotext = cotext
 
-    private var cID: String? = null
-    private var message: String? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            cID = it.getString(ARG_cId)
-            message = it.getString(ARG_MESSAGE)
-        }
     }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        val bundle = arguments
         val builder = AlertDialog.Builder(activity)
+
             activity?.let {
             val view = it.layoutInflater.inflate(R.layout.fragment_edit_text, null)
                 var editText: EditText = view.findViewById(R.id.edit_text) // ←ここでedit_textを取得
-                editText.setText(message,TextView.BufferType.EDITABLE)
+                editText.setText(bundle?.getString("KEY_KOUMOKU"),TextView.BufferType.EDITABLE)
             builder.setView(view)
                 .setPositiveButton("OK") { _, _ ->
 
                     val text = editText.text.toString()
                     var query = NCMBQuery<NCMBObject>("massage")
-                    query.whereEqualTo("objectId",cID)
+                    query.whereEqualTo("objectId",bundle?.getString("KEY_ID"))
                     var updatte = query.find()
                     updatte[0].put("content",text)
                     updatte[0].save()
+                    bundle?.putString("KEY_RE",text)
+                    bundle?.putString("KEY_RID",bundle?.getString("KEY_ID"))
+
 
                 }
                 .setNegativeButton("キャンセル") { _, _ ->
@@ -58,18 +62,6 @@ class EditTextFragment : DialogFragment() {
 
     }
 
-
-    companion object {
-        const val TAG = "EditTextFragment"
-        private const val ARG_cId = "argcId"
-        private const val ARG_MESSAGE = "argMessage"
-        fun newInstance(title: String, message: String) = EditTextFragment().apply {
-            arguments = Bundle().apply {
-                putString(ARG_cId, cID)
-                putString(ARG_MESSAGE, message)
-            }
-        }
-    }
 }
 
 
