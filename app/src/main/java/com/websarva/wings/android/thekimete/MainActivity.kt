@@ -28,11 +28,6 @@ class MainActivity : AppCompatActivity() {
         NCMB.initialize(this.getApplicationContext(),"45c70179afdfbee2e89e9baa3d02560c7f7c287d498cab8c36fe3cedf5acd985","85beadbe849665472bb9ae2a734bfb27c3a7e268f888af328dabc460b6267912");
         setContentView(R.layout.activity_main)
 
-        val adb = findViewById<Button>(R.id.addbutton)
-
-//        adb.setOnClickListener {
-//
-//        }
 
         val query = NCMBQuery<NCMBObject>("Title")
         var i = 0

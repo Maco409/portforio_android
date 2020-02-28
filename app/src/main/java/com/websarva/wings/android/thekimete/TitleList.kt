@@ -28,13 +28,17 @@ class TitleList : AppCompatActivity() {
 
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
+        super.onActivityResult(requestCode,resultCode,data)
+        createList()
+    }
+
     fun createList(){
         val query = NCMBQuery<NCMBObject>("Title")
 
         var i = 0
         var titleList = query.find()
         var n = titleList.size
-        val list: List<Map<String, String>> = ArrayList()
 
         // 初期のリスト項目を設定
         val arrayAdapter = MyArrayAdapter(this, 0).apply {
@@ -43,23 +47,45 @@ class TitleList : AppCompatActivity() {
                 add(ListItem(o))
                 i++
             }
+            add(ListItem("+"))
         }
 
         // ListView にリスト項目と ArrayAdapter を設定
         val listView: ListView = findViewById(R.id.listView)
 
         listView.adapter = arrayAdapter
+        var itemcount = listView.count
+
 
         listView.onItemClickListener =  AdapterView.OnItemClickListener { parent, view, pos, id ->
             val intent = Intent(view!!.context, ContentsList::class.java)
-            var listitem : ListItem = parent.getItemAtPosition(pos) as ListItem
-            var query = NCMBQuery<NCMBObject>("Title")
-            query.whereEqualTo("Title",listitem.title)
-            var tID = query.find()
-            intent.putExtra("KEY_TITLE", listitem.title)
-            intent.putExtra("KEY_ID",tID[0].getString("objectId"))
-            view.context.startActivity(intent)
+
+            when(pos) {
+                itemcount - 1 -> {
+                    var obj = NCMBObject("Title")
+                    obj.put("NewFlag","true")
+                    obj.save()
+                    var query = NCMBQuery<NCMBObject>("Title")
+                    query.whereEqualTo("NewFlag","true")
+                    var new = query.find()
+                    intent.putExtra("KEY_TITLE","新規作成")
+                    intent.putExtra("KEY_ID",new[0].getString("objectId"))
+                    new[0].put("NewFlag","false")
+                    new[0].save()
+
+                }
+                else -> {
+                    var listitem: ListItem = parent.getItemAtPosition(pos) as ListItem
+                    var query = NCMBQuery<NCMBObject>("Title")
+                    query.whereEqualTo("Title", listitem.title)
+                    var tID = query.find()
+                    intent.putExtra("KEY_TITLE", listitem.title)
+                    intent.putExtra("KEY_ID", tID[0].getString("objectId"))
+                }
+            }
+            startActivityForResult(intent,1)
         }
+
 
     }
 
@@ -90,7 +116,6 @@ class TitleList : AppCompatActivity() {
 
             var viewHolder : ViewHolder? = null
             var view = convertView
-            var mHandler = Handler(Looper.getMainLooper())
 
 
             // 再利用の設定

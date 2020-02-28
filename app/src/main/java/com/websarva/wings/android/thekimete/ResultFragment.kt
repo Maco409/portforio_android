@@ -28,23 +28,31 @@ class ResultFragment : DialogFragment() {
         query.whereEqualTo("TitleID",tID[0].getString("objectId"))
         val contents = query.find()
 
-        var tcount = contents.size
-
-
-
         var number = bundle?.getString("KEY_N")
 
         builder.setTitle("決まりました！")
-        var mincount = min(contents.size, number!!.toInt())
-        var con : String  = ""
 
-        for (i in 0 until mincount) {
-            var randomInt = Random.nextInt(contents.size)
-            con = con + "\n" + contents[randomInt].getString("content")
-            contents.removeAt(randomInt)
+        when(number!!.toInt()) {
+            0 -> {
+                builder.setMessage("\nThe Best Answer is in your heart...")
+            }
+
+            else -> {
+
+                var mincount = min(contents.size, number!!.toInt())
+                var con
+                        : String = ""
+
+
+                for (i in 0 until mincount) {
+                    var randomInt = Random.nextInt(contents.size)
+                    con = con + "\n" + contents[randomInt].getString("content")
+                    contents.removeAt(randomInt)
+                }
+
+                builder.setMessage(con)
+            }
         }
-
-        builder.setMessage(con)
 
         builder.setPositiveButton("ok",DialogButtonClickListener())
         val dialog = builder.create()
