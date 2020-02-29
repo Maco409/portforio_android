@@ -4,28 +4,20 @@ package com.websarva.wings.android.thekimete
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.*
+import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.nifcloud.mbaas.core.NCMBObject
 import com.nifcloud.mbaas.core.NCMBQuery
-import kotlinx.android.synthetic.main.activity_title_list.*
 
-/**
- * A simple [Fragment] subclass.
- */
+
 class EditTextFragment : DialogFragment() {
-    var cotext : Context? = null
+    var set_context: Context? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.cotext = cotext
+        this.set_context = context
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -37,25 +29,24 @@ class EditTextFragment : DialogFragment() {
             null -> {
                 activity?.let {
                     val view = it.layoutInflater.inflate(R.layout.fragment_edit_text, null)
-                    var editText: EditText = view.findViewById(R.id.edit_text) // ←ここでedit_textを取得
+                    var editText: EditText = view.findViewById(R.id.edit_text)
                     editText.setText("", TextView.BufferType.EDITABLE)
                     builder.setView(view)
                         .setPositiveButton("OK") { _, _ ->
 
                             val text = editText.text.toString()
-                            var nObject = NCMBObject("massage")
+                            var massage_object = NCMBObject("massage")
                             val contentsList = context as ContentsList
 
-                            nObject.put("content", text)
-                            nObject.put("TitleID",bundle.getString("KEY_TID"))
-                            nObject.save()
+                            massage_object.put("content", text)
+                            massage_object.put("TitleID", bundle.getString("KEY_TID"))
+                            massage_object.save()
                             bundle?.putString("KEY_RE", text)
 
                             contentsList.clickOkDialog()
                         }
                         .setNegativeButton("キャンセル") { _, _ ->
                         }
-
                 }
             }
 
@@ -69,15 +60,14 @@ class EditTextFragment : DialogFragment() {
                         .setPositiveButton("OK") { _, _ ->
 
                             val text = editText.text.toString()
-                            var query = NCMBQuery<NCMBObject>("massage")
+                            var massage_query = NCMBQuery<NCMBObject>("massage")
                             val contentsList = context as ContentsList
-                            query.whereEqualTo("objectId", bundle?.getString("KEY_ID"))
-                            var updatte = query.find()
-                            updatte[0].put("content", text)
-                            updatte[0].save()
+                            massage_query.whereEqualTo("objectId", bundle?.getString("KEY_ID"))
+                            var update = massage_query.find()
+                            update[0].put("content", text)
+                            update[0].save()
                             bundle?.putString("KEY_RE", text)
                             bundle?.putString("KEY_RID", bundle?.getString("KEY_ID"))
-
 
                             contentsList.clickOkDialog()
                         }
@@ -87,12 +77,12 @@ class EditTextFragment : DialogFragment() {
                 }
             }
         }
-                return builder.create()
+        return builder.create()
 
 
     }
 
-    }
+}
 
 
 

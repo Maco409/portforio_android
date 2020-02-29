@@ -5,9 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.size
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,90 +24,70 @@ class TitleList : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_title_list)
 
+        val add: ImageButton = findViewById(R.id.add_button)
+        add.setOnClickListener {
+            val intent = Intent(this, ContentsList::class.java)
+
+            var title_object = NCMBObject("Title")
+            title_object.put("NewFlag", "true")
+            title_object.save()
+            var title_query = NCMBQuery<NCMBObject>("Title")
+            title_query.whereEqualTo("NewFlag", "true")
+            var new_title = title_query.find()
+            intent.putExtra("KEY_TITLE", "新規作成")
+            intent.putExtra("KEY_ID", new_title[0].getString("objectId"))
+            new_title[0].put("NewFlag", "false")
+            new_title[0].save()
+            startActivityForResult(intent, 1)
+
+        }
 
         createList()
 
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
-        super.onActivityResult(requestCode,resultCode,data)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         createList()
     }
 
-    fun createList(){
+    fun createList() {
         val query = NCMBQuery<NCMBObject>("Title")
 
         var i = 0
         var titleList = query.find()
-        var n = titleList.size
+        var size = titleList.size
 
-        // LayoutManagerの設定
         val layoutManager = LinearLayoutManager(this)
         listView.layoutManager = layoutManager
 
-//        // Adapterの設定
-//        val sampleList = mutableListOf<String>()
-//        for (i in 0..10) {
-//            sampleList.add(i.toString())
-//        }
-        // 初期のリスト項目を設定
+
         val arrayAdapter = mutableListOf<ListItem>()
-            while (i < n) {
-                var o = titleList[i].getString("Title")
-                arrayAdapter.add(ListItem(o))
-                i++
-            }
-            arrayAdapter.add(ListItem("+"))
+        while (i < size) {
+            var get_titlename = titleList[i].getString("Title")
+            arrayAdapter.add(ListItem(get_titlename))
+            i++
+        }
 
         val adapter = MyArrayAdapter(arrayAdapter)
-        listView.adapter = adapter
+        val listview: RecyclerView = findViewById(R.id.listView)
+        listview.adapter = adapter
 
-
-        // 区切り線の表示
         listView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
-
-
-        // ListView にリスト項目と ArrayAdapter を設定
-      val listview: RecyclerView = findViewById(R.id.listView)
-
-
-        //listView.adapter = arrayAdapter
-        var itemcount = adapter.itemCount
-
 
         adapter.setOnItemClickListener(object : MyArrayAdapter.OnItemClickListener {
 
-            override fun onClick(view: View, data: ListItem,position: Int) {
+            override fun onClick(view: View, data: ListItem, position: Int) {
 
-            val intent = Intent(view!!.context, ContentsList::class.java)
+                val intent = Intent(view!!.context, ContentsList::class.java)
 
-//posにタッチされた項目のポジションを入れたい
-            when(position) {
-                itemcount - 1 -> {
-                    var obj = NCMBObject("Title")
-                    obj.put("NewFlag","true")
-                    obj.save()
-                    var query = NCMBQuery<NCMBObject>("Title")
-                    query.whereEqualTo("NewFlag","true")
-                    var new = query.find()
-                    intent.putExtra("KEY_TITLE","新規作成")
-                    intent.putExtra("KEY_ID",new[0].getString("objectId"))
-                    new[0].put("NewFlag","false")
-                    new[0].save()
+                var query = NCMBQuery<NCMBObject>("Title")
+                query.whereEqualTo("Title", data.title)
+                var titleID = query.find()
+                intent.putExtra("KEY_TITLE", data.title)
+                intent.putExtra("KEY_ID", titleID[0].getString("objectId"))
 
-                }
-                else -> {
-
-
-                    var query = NCMBQuery<NCMBObject>("Title")
-                    query.whereEqualTo("Title", data.title)
-                    var tID = query.find()
-                    intent.putExtra("KEY_TITLE", data.title)
-                    intent.putExtra("KEY_ID", tID[0].getString("objectId"))
-                }
-            }
-
-            startActivityForResult(intent,1)
+                startActivityForResult(intent, 1)
 
             }
 
@@ -115,59 +96,67 @@ class TitleList : AppCompatActivity() {
 
 }
 
-    // リスト項目のデータ
-    data class ListItem(val title: String) {
+data class ListItem(val title: String)
 
-        var description : String = "No description"
+class RecyclerViewHolder(var view: View) : RecyclerView.ViewHolder(view) {
+    val titleView: TextView = view.item_title
+    val deleteIcon: Button = view.delete_button
+}
 
-        constructor(title: String, description: String) : this(title) {
-            this.description = description
-        }
+class MyArrayAdapter(var items: MutableList<ListItem>) :
+    RecyclerView.Adapter<RecyclerViewHolder>() {
+
+    lateinit var listener: OnItemClickListener
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
+        setOnItemClickListener(listener)
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val view = layoutInflater.inflate(R.layout.list_item, parent, false)
+
+        return RecyclerViewHolder(view)
     }
 
-    // リスト項目を再利用するためのホルダー
-    class RecyclerViewHolder(var view: View): RecyclerView.ViewHolder(view){
-        val titleView: TextView = view.item_title
-        val deleteIcon: Button = view.delete_button
+    override fun getItemCount(): Int {
+        return items.size
     }
 
-    // 自作のリスト項目データを扱えるようにした ArrayAdapter
-    class MyArrayAdapter(var items: MutableList<ListItem>) : RecyclerView.Adapter<RecyclerViewHolder>() {
+    override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
 
-        lateinit var listener : OnItemClickListener
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
-            setOnItemClickListener(listener)
-            val layoutInflater = LayoutInflater.from(parent.context)
-            val view = layoutInflater.inflate(R.layout.list_item, parent, false)
-
-            return RecyclerViewHolder(view)
+        var data = items[position]
+        holder.titleView.text = data.title
+        if (data.title == ("+")) {
+            holder.deleteIcon.visibility = View.GONE
         }
-
-        override fun getItemCount(): Int {
-            return items.size
-        }
-
-        override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
-
-            var data = items[position]
-            holder.titleView.text = items.get(position).toString()
-            holder.deleteIcon.setOnClickListener { _ ->
-                              // 削除ボタンをタップしたときの処理
-                this.notifyItemRemoved(position)
+        holder.deleteIcon.setOnClickListener { _ ->
+            val dlelete_title_query = NCMBQuery<NCMBObject>("Title")
+            val dlete_massage_query = NCMBQuery<NCMBObject>("massage")
+            dlelete_title_query.whereEqualTo("Title", data.title)
+            var dlete_title = dlelete_title_query.find()
+            dlete_massage_query.whereEqualTo("TitleID", dlete_title[0].objectId)
+            var dlete_massage = dlete_massage_query.find()
+            dlete_title[0].deleteObject()
+            var i = 0
+            var size = dlete_massage.size
+            while (i < size) {
+                dlete_massage[i].deleteObject()
+                i++
             }
-            holder.titleView.setOnClickListener {
-                listener.onClick(it,data,position)
-            }
-        }
 
-        interface OnItemClickListener{
-            fun onClick(view: View,data: ListItem,position: Int)
+            this.notifyItemRemoved(position)
         }
-        fun setOnItemClickListener(listener: OnItemClickListener) {
-            this.listener = listener
+        holder.titleView.setOnClickListener {
+            listener.onClick(it, data, position)
         }
     }
+
+    interface OnItemClickListener {
+        fun onClick(view: View, data: ListItem, position: Int)
+    }
+
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        this.listener = listener
+    }
+}
 
 
 

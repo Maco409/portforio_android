@@ -1,115 +1,105 @@
 package com.websarva.wings.android.thekimete
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.Spinner
+import androidx.appcompat.app.AppCompatActivity
 import com.nifcloud.mbaas.core.NCMB
 import com.nifcloud.mbaas.core.NCMBObject
 import com.nifcloud.mbaas.core.NCMBQuery
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
-import java.lang.reflect.Array
-import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
-
-
-    // spinner選択肢
-    //private val spinnerItems = arrayOf("Spinner", "Android", "Apple", "Windows")
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        NCMB.initialize(
+            this.getApplicationContext(),
+            "45c70179afdfbee2e89e9baa3d02560c7f7c287d498cab8c36fe3cedf5acd985",
+            "85beadbe849665472bb9ae2a734bfb27c3a7e268f888af328dabc460b6267912"
+        )
 
-        NCMB.initialize(this.getApplicationContext(),"45c70179afdfbee2e89e9baa3d02560c7f7c287d498cab8c36fe3cedf5acd985","85beadbe849665472bb9ae2a734bfb27c3a7e268f888af328dabc460b6267912");
         setContentView(R.layout.activity_main)
 
-
-        val query = NCMBQuery<NCMBObject>("Title")
-        var i = 0
-        var titlename = query.find()
-        var size = titlename.size
-        var spinnerItems : ArrayList<String> = ArrayList()
+        val title_query = NCMBQuery<NCMBObject>("Title")
+        var i = 1
+        var title_name = title_query.find()
+        var size = title_name.size
+        var spinnerItems: ArrayList<String> = ArrayList()
+        spinnerItems.add("LIST NEW をタッチ！")
         while (i < size) {
-            var o = titlename[i].getString("Title")
-            spinnerItems.add(o)
+            var getTitleName = title_name[i].getString("Title")
+            spinnerItems.add(getTitleName)
             i++
         }
-        val spinnerNumbers = arrayOf(0,1,2,3,4,5)
 
-        val listnameselect = findViewById<Spinner>(R.id.listnameselect)
-        val numberselect = findViewById<Spinner>(R.id.numberselect)
+        val spinner_picknumbers = arrayOf(0, 1, 2, 3, 4, 5)
+
+        val listname_select = findViewById<Spinner>(R.id.listname_select)
+        val picknumber_select = findViewById<Spinner>(R.id.picknumber_select)
 
         // ArrayAdapter
-        val adapter = ArrayAdapter(applicationContext,
-            android.R.layout.simple_spinner_item, spinnerItems)
-        val nadapter = ArrayAdapter(applicationContext,
-            android.R.layout.simple_spinner_item, spinnerNumbers)
+        val titlelistAdapter = ArrayAdapter(
+            applicationContext,
+            android.R.layout.simple_spinner_item, spinnerItems
+        )
+        val picknumberAdapter = ArrayAdapter(
+            applicationContext,
+            android.R.layout.simple_spinner_item, spinner_picknumbers
+        )
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        nadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        titlelistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        picknumberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        // spinner に adapter をセット
-        // Kotlin Android Extensions
-        listnameselect.adapter = adapter
-        numberselect.adapter = nadapter
+        listname_select.adapter = titlelistAdapter
+        picknumber_select.adapter = picknumberAdapter
 
-        // リスナーを登録
-        listnameselect.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            //　アイテムが選択された時
+        listname_select.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?, position: Int, id: Long
+                parent: AdapterView<*>?, view: View?, position: Int, id: Long
             ) {
                 val spinnerParent = parent as Spinner
                 val item = spinnerParent.selectedItem as String
-                // Kotlin Android Extensions
-                listname.text = item
+                list_name.text = item
             }
-            //　アイテムが選択されなかった
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                //
             }
         }
 
-        // リスナーを登録
-        numberselect.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            //　アイテムが選択された時
+        picknumber_select.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?, position: Int, id: Long
             ) {
-                val nspinnerParent = parent as Spinner
-                val nitem = nspinnerParent.selectedItem as Int
-                // Kotlin Android Extensions
-                number.text = nitem.toString()
+                val picknumber_spinnerParent = parent as Spinner
+                val picknumber_item = picknumber_spinnerParent.selectedItem as Int
+                picknumber.text = picknumber_item.toString()
             }
-            //　アイテムが選択されなかった
+
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                //
             }
         }
 
 
-        val set : Button = findViewById(R.id.ListSet)
+        val list_set: Button = findViewById(R.id.list_set)
 
-        set.setOnClickListener {
-            val intent = Intent(this,TitleList::class.java)
+        list_set.setOnClickListener {
+            val intent = Intent(this, TitleList::class.java)
             startActivity(intent)
         }
 
-        val kimete : Button = findViewById(R.id.kimete)
+        val kimete: Button = findViewById(R.id.kimete)
         kimete.setOnClickListener {
             val bundle = Bundle()
-            bundle.putString("KEY_N",number.text.toString())
-            bundle.putString("KEY_TNname",listname.text.toString())
+            bundle.putString("KEY_N", picknumber.text.toString())
+            bundle.putString("KEY_TNname", list_name.text.toString())
             val result = ResultFragment()
             result.arguments = bundle
-            result.show(supportFragmentManager,"ResultFragment")
+            result.show(supportFragmentManager, "ResultFragment")
 
         }
     }

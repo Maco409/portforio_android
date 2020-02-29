@@ -18,27 +18,27 @@
         app:layout_constraintVertical_bias="0.757" />
 
     <Button
-        android:id="@+id/ListSet"
+        android:id="@+id/list_set"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="LIST SET"
+        android:text="LIST NEW"
         app:layout_constraintBottom_toTopOf="@+id/kimete"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/number"
+        android:id="@+id/picknumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="1"
-        app:layout_constraintBottom_toTopOf="@+id/numberselect"
+        app:layout_constraintBottom_toTopOf="@+id/picknumber_select"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ListSet" />
+        app:layout_constraintTop_toBottomOf="@+id/list_set" />
 
     <Spinner
-        android:id="@+id/numberselect"
+        android:id="@+id/picknumber_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="60dp"
@@ -48,7 +48,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/listname"
+        android:id="@+id/list_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
@@ -59,12 +59,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
-        android:id="@+id/listnameselect"
+        android:id="@+id/listname_select"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:background="#fff"
-        app:layout_constraintBottom_toTopOf="@+id/ListSet"
+        app:layout_constraintBottom_toTopOf="@+id/list_set"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

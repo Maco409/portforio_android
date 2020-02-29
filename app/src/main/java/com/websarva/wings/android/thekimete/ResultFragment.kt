@@ -5,12 +5,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import com.nifcloud.mbaas.core.NCMB
 import com.nifcloud.mbaas.core.NCMBObject
 import com.nifcloud.mbaas.core.NCMBQuery
 import kotlin.math.min
@@ -21,40 +16,43 @@ class ResultFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val bundle = arguments
         val builder = AlertDialog.Builder(activity)
-        val tq = NCMBQuery<NCMBObject>("Title")
-        val query = NCMBQuery<NCMBObject>("massage")
-        tq.whereEqualTo("Title",bundle?.getString("KEY_TNname"))
-        val tID = tq.find()
-        query.whereEqualTo("TitleID",tID[0].getString("objectId"))
-        val contents = query.find()
+        val title_query = NCMBQuery<NCMBObject>("Title")
+        val massage_query = NCMBQuery<NCMBObject>("massage")
+        title_query.whereEqualTo("Title", bundle?.getString("KEY_TNname"))
+        val title_list = title_query.find()
 
-        var number = bundle?.getString("KEY_N")
+        if (title_list.size == 0) {
+            builder.setTitle("新しいリストを作ってください")
+        } else {
+            massage_query.whereEqualTo("TitleID", title_list[0].getString("objectId"))
+            val contents = massage_query.find()
 
-        builder.setTitle("決まりました！")
+            var picknumber = bundle?.getString("KEY_N")
 
-        when(number!!.toInt()) {
-            0 -> {
-                builder.setMessage("\nThe Best Answer is in your heart...")
-            }
+            builder.setTitle("決まりました！")
 
-            else -> {
-
-                var mincount = min(contents.size, number!!.toInt())
-                var con
-                        : String = ""
-
-
-                for (i in 0 until mincount) {
-                    var randomInt = Random.nextInt(contents.size)
-                    con = con + "\n" + contents[randomInt].getString("content")
-                    contents.removeAt(randomInt)
+            when (picknumber!!.toInt()) {
+                0 -> {
+                    builder.setMessage("\nThe Best Answer is in your heart...")
                 }
 
-                builder.setMessage(con)
+                else -> {
+
+                    var mincount = min(contents.size, picknumber!!.toInt())
+                    var con: String = ""
+
+                    for (i in 0 until mincount) {
+                        var randomInt = Random.nextInt(contents.size)
+                        con = con + "\n" + contents[randomInt].getString("content")
+                        contents.removeAt(randomInt)
+                    }
+
+                    builder.setMessage(con)
+                }
             }
         }
 
-        builder.setPositiveButton("ok",DialogButtonClickListener())
+        builder.setPositiveButton("ok", DialogButtonClickListener())
         val dialog = builder.create()
         return dialog
     }
