@@ -6,19 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".TitleList">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="com.example.test.MainActivity" >
 
-        <ListView
+
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/listView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1"></ListView>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    </LinearLayout>
+        </androidx.recyclerview.widget.RecyclerView>
+
+
 
 
 
