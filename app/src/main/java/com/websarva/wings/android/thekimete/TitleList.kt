@@ -74,16 +74,14 @@ class TitleList : AppCompatActivity() {
         var itemcount = adapter.itemCount
 
 
-
-
         adapter.setOnItemClickListener(object : MyArrayAdapter.OnItemClickListener {
 
-            override fun onClick(view: View, data: ListItem) {
+            override fun onClick(view: View, data: ListItem,position: Int) {
 
             val intent = Intent(view!!.context, ContentsList::class.java)
 
 //posにタッチされた項目のポジションを入れたい
-            when(pos) {
+            when(position) {
                 itemcount - 1 -> {
                     var obj = NCMBObject("Title")
                     obj.put("NewFlag","true")
@@ -159,53 +157,19 @@ class TitleList : AppCompatActivity() {
                 this.notifyItemRemoved(position)
             }
             holder.titleView.setOnClickListener {
-                listener.onClick(it,data)
+                listener.onClick(it,data,position)
             }
         }
 
         interface OnItemClickListener{
-            fun onClick(view: View,data: ListItem)
+            fun onClick(view: View,data: ListItem,position: Int)
         }
         fun setOnItemClickListener(listener: OnItemClickListener) {
             this.listener = listener
         }
     }
 
-//        private var inflater : LayoutInflater? = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater?
-//
-//        constructor(context : Context, resource : Int) : super(context, resource) {}
-//
-//        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-//
-//
-//            var viewHolder : ViewHolder? = null
-//            var view = convertView
-//
-//
-//            // 再利用の設定
-//
-//            if (view == null) {
-//
-//                view = inflater!!.inflate(R.layout.list_item, parent, false)
-//                viewHolder = ViewHolder(
-//                    view.findViewById(R.id.item_title),
-//                    view.findViewById(R.id.delete_button)
-//                )
-//                view.tag = viewHolder
-//            } else {
-//                viewHolder = view.tag as ViewHolder
-//            }
-//
-//            // 項目の情報を設定
-//            val listItem = getItem(position)
-//            viewHolder.titleView.text = listItem!!.title.toString()
-//            viewHolder.deleteIcon.setOnClickListener { _ ->
-//                // 削除ボタンをタップしたときの処理
-//                this.remove(listItem)
-//                this.notifyDataSetChanged()
-//            }
-//            return view!!
-//        }
+
 
 
 
