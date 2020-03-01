@@ -38,12 +38,17 @@ class TitleList : AppCompatActivity() {
             intent.putExtra("KEY_ID", new_title[0].getString("objectId"))
             new_title[0].put("NewFlag", "false")
             new_title[0].save()
-            startActivityForResult(intent, 1)
+            startActivityForResult(intent, 2)
 
         }
 
+        val save: Button = findViewById(R.id.save_button)
+        save.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            setResult(2, intent)
+            finish()
+        }
         createList()
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -65,12 +70,15 @@ class TitleList : AppCompatActivity() {
         val arrayAdapter = mutableListOf<ListItem>()
         while (i < size) {
             var get_titlename = titleList[i].getString("Title")
-            arrayAdapter.add(ListItem(get_titlename))
+            if (get_titlename != null) {
+                arrayAdapter.add(ListItem(get_titlename))
+            }
             i++
         }
 
         val adapter = MyArrayAdapter(arrayAdapter)
         val listview: RecyclerView = findViewById(R.id.listView)
+
         listview.adapter = adapter
 
         listView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
@@ -137,12 +145,15 @@ class MyArrayAdapter(var items: MutableList<ListItem>) :
             dlete_title[0].deleteObject()
             var i = 0
             var size = dlete_massage.size
-            while (i < size) {
-                dlete_massage[i].deleteObject()
-                i++
+            if (size != 0) {
+                while (i < size) {
+                    dlete_massage[i].deleteObject()
+                    i++
+                }
             }
-
+            items.removeAt(position)
             this.notifyItemRemoved(position)
+            this.notifyItemRangeChanged(position, items.size)
         }
         holder.titleView.setOnClickListener {
             listener.onClick(it, data, position)

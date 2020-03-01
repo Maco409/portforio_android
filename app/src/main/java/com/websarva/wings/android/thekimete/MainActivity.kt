@@ -25,38 +25,50 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
+        val list_set: Button = findViewById(R.id.list_set)
+
+        list_set.setOnClickListener {
+            val intent = Intent(this, TitleList::class.java)
+            startActivityForResult(intent, 1)
+        }
+
+
+        createPicknumberSpinner()
+
+        createTitleSpinner()
+
+        ClickKimete()
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        createTitleSpinner()
+    }
+
+    fun createTitleSpinner() {
         val title_query = NCMBQuery<NCMBObject>("Title")
-        var i = 1
+        var i = 0
         var title_name = title_query.find()
         var size = title_name.size
         var spinnerItems: ArrayList<String> = ArrayList()
-        spinnerItems.add("LIST NEW をタッチ！")
+        val listname_select = findViewById<Spinner>(R.id.listname_select)
         while (i < size) {
             var getTitleName = title_name[i].getString("Title")
-            spinnerItems.add(getTitleName)
+            if (getTitleName != null) {
+                spinnerItems.add(getTitleName)
+            }
             i++
         }
-
-        val spinner_picknumbers = arrayOf(0, 1, 2, 3, 4, 5)
-
-        val listname_select = findViewById<Spinner>(R.id.listname_select)
-        val picknumber_select = findViewById<Spinner>(R.id.picknumber_select)
-
-        // ArrayAdapter
+        spinnerItems.add("LIST NEW をタッチ！")
         val titlelistAdapter = ArrayAdapter(
             applicationContext,
             android.R.layout.simple_spinner_item, spinnerItems
         )
-        val picknumberAdapter = ArrayAdapter(
-            applicationContext,
-            android.R.layout.simple_spinner_item, spinner_picknumbers
-        )
 
         titlelistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        picknumberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
         listname_select.adapter = titlelistAdapter
-        picknumber_select.adapter = picknumberAdapter
+
 
         listname_select.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -66,10 +78,22 @@ class MainActivity : AppCompatActivity() {
                 val item = spinnerParent.selectedItem as String
                 list_name.text = item
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
         }
+    }
 
+    fun createPicknumberSpinner() {
+        val spinner_picknumbers = arrayOf(0, 1, 2, 3, 4, 5)
+        val picknumber_select = findViewById<Spinner>(R.id.picknumber_select)
+        val picknumberAdapter = ArrayAdapter(
+            applicationContext,
+            android.R.layout.simple_spinner_item, spinner_picknumbers
+        )
+
+        picknumberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        picknumber_select.adapter = picknumberAdapter
         picknumber_select.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -84,14 +108,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
 
-        val list_set: Button = findViewById(R.id.list_set)
-
-        list_set.setOnClickListener {
-            val intent = Intent(this, TitleList::class.java)
-            startActivity(intent)
-        }
-
+    fun ClickKimete() {
         val kimete: Button = findViewById(R.id.kimete)
         kimete.setOnClickListener {
             val bundle = Bundle()

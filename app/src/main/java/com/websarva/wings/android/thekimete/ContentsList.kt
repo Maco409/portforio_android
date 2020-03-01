@@ -33,9 +33,9 @@ class ContentsList : AppCompatActivity() {
         val massege_query = NCMBQuery<NCMBObject>("massage")
         var title_query = NCMBQuery<NCMBObject>("Title")
         var i = 0
-        val tID = intent.getStringExtra("KEY_ID")
-        massege_query.whereEqualTo("TitleID", tID)
-        title_query.whereEqualTo("objectId", tID)
+        val titleID = intent.getStringExtra("KEY_ID")
+        massege_query.whereEqualTo("TitleID", titleID)
+        title_query.whereEqualTo("objectId", titleID)
         var settitle = title_query.find()
         var contents_list = massege_query.find()
         var size = contents_list.size
@@ -55,8 +55,8 @@ class ContentsList : AppCompatActivity() {
         val add: ImageButton = findViewById(R.id.add_button)
         add.setOnClickListener {
             val bundle = Bundle()
-            bundle.putString("KEY_TID", tID)
-            val EditTextFragment= EditTextFragment()
+            bundle.putString("KEY_TID", titleID)
+            val EditTextFragment = EditTextFragment()
             EditTextFragment.arguments = bundle
             EditTextFragment.show(supportFragmentManager, "EditTextFragment")
         }
@@ -64,7 +64,9 @@ class ContentsList : AppCompatActivity() {
         val arrayAdapter = MyArrayAdapter(this, 0).apply {
             while (i < size) {
                 var get_contentname = contents_list[i].getString("content")
-                add(ListItem(get_contentname))
+                if (get_contentname != null) {
+                    add(ListItem(get_contentname))
+                }
                 i++
             }
         }
@@ -134,6 +136,4 @@ class ContentsList : AppCompatActivity() {
             return view!!
         }
     }
-
-
 }
